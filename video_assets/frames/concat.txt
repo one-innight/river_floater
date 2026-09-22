@@ -1,0 +1,7 @@
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/01.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/02.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/03.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/04.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/05.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/06.mp4'
+file 'C:/新大陆/task1-opencv_face_detection-master/河道主动巡护系统/video_assets/frames/07.mp4'

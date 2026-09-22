@@ -1,0 +1,17 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+.ruff_cache
+.ipynb_checkpoints
+tmp
+tests
+evaluation
+项目文档
+static/uploads
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+.env
+.env.production

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0c292b" />
+    <meta name="description" content="河道漂浮物主动巡护移动端" />
+    <link rel="manifest" href="/mobile/manifest.webmanifest" />
+    <link rel="icon" href="/mobile/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/mobile/icon.svg" />
+    <link rel="stylesheet" href="/mobile/styles.css" />
+    <title>河道智巡</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">RIVER PATROL</p>
+          <h1>河道智巡</h1>
+        </div>
+        <span id="connectionState" class="connection"><i></i>检查连接</span>
+      </header>
+
+      <main>
+        <section
+          id="inspectPage"
+          class="page active"
+          aria-labelledby="inspectTitle"
+        >
+          <div class="hero-card">
+            <p class="eyebrow">FLOATING OBJECT DETECTION</p>
+            <h2 id="inspectTitle">现场巡查</h2>
+            <p>拍摄或选择河道图片，系统将识别漂浮物并自动生成预警事件。</p>
+          </div>
+
+          <form id="detectForm" class="stack-card">
+            <label class="image-picker" for="imageInput">
+              <input id="imageInput" type="file" accept="image/*" required />
+              <span class="picker-icon">⌁</span>
+              <strong id="imageLabel">拍照或选择现场图片</strong>
+              <small>支持 JPG、PNG、WEBP，最大 15 MB</small>
+            </label>
+            <img
+              id="previewImage"
+              class="preview hidden"
+              alt="待识别图片预览"
+            />
+            <label class="field">
+              <span>河段名称</span>
+              <input
+                id="locationInput"
+                maxlength="100"
+                value="河段 A"
+                placeholder="例如：XX 桥下游"
+                required
+              />
+            </label>
+            <button id="detectButton" class="primary-button" type="submit">
+              开始识别 <span>→</span>
+            </button>
+          </form>
+
+          <section
+            id="detectResult"
+            class="result-card hidden"
+            aria-live="polite"
+          ></section>
+
+          <section class="rule-card">
+            <strong>当前预警规则</strong>
+            <p>1–3 个漂浮物黄色预警；4–7 个橙色预警；8 个及以上红色预警。</p>
+          </section>
+        </section>
+
+        <section id="eventsPage" class="page" aria-labelledby="eventsTitle">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">EVENT LEDGER</p>
+              <h2 id="eventsTitle">预警事件</h2>
+            </div>
+            <button
+              id="refreshEvents"
+              class="icon-button"
+              type="button"
+              aria-label="刷新事件列表"
+            >
+              ↻
+            </button>
+          </div>
+          <div class="filters" role="group" aria-label="事件状态筛选">
+            <button class="filter active" data-status="" type="button">
+              全部
+            </button>
+            <button class="filter" data-status="待确认" type="button">
+              待确认
+            </button>
+            <button class="filter" data-status="处理中" type="button">
+              处理中
+            </button>
+            <button class="filter" data-status="已关闭" type="button">
+              已归档
+            </button>
+          </div>
+          <div id="eventsList" class="event-list" aria-live="polite"></div>
+        </section>
+
+        <section id="settingsPage" class="page" aria-labelledby="settingsTitle">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">CONNECTION</p>
+              <h2 id="settingsTitle">连接设置</h2>
+            </div>
+          </div>
+          <section class="stack-card">
+            <div class="field">
+              <span>当前服务器</span>
+              <strong id="currentServiceUrl">读取中…</strong>
+              <small>登录、事件台账和图片均从当前站点读取</small>
+            </div>
+            <button
+              id="checkConnectionButton"
+              class="primary-button"
+              type="button"
+            >
+              检查服务器连接 <span>✓</span>
+            </button>
+            <button id="logoutButton" class="danger-button" type="button">
+              退出登录
+            </button>
+          </section>
+          <section class="rule-card">
+            <strong>安装到手机</strong>
+            <p>
+              Android Chrome 打开菜单，选择“安装应用”或“添加到主屏幕”。iPhone
+              Safari 可使用分享菜单中的“添加到主屏幕”。
+            </p>
+          </section>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="主导航">
+        <button class="nav-item active" data-page="inspectPage" type="button">
+          <span>⌁</span>巡查
+        </button>
+        <button class="nav-item" data-page="eventsPage" type="button">
+          <span>▤</span>事件
+        </button>
+        <button class="nav-item" data-page="settingsPage" type="button">
+          <span>⚙</span>设置
+        </button>
+      </nav>
+    </div>
+
+    <dialog id="eventDialog" class="event-dialog">
+      <article id="eventDetail"></article>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/mobile/app.js" defer></script>
+  </body>
+</html>

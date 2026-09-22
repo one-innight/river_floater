@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c292b" />
+    <title>登录｜河道主动巡护系统</title>
+    <style>
+      :root { color-scheme: dark; font-family: "Microsoft YaHei", system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; color: #edf8f6; background: radial-gradient(circle at 15% 10%, #246c68, transparent 35%), linear-gradient(135deg, #071d20, #0d3435); }
+      .card { width: min(100%, 390px); padding: 32px; border: 1px solid #4e8580; border-radius: 20px; background: rgba(8, 35, 37, .88); box-shadow: 0 24px 70px rgba(0, 0, 0, .35); }
+      .mark { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #48c2b4; color: #073033; font-size: 25px; }
+      h1 { margin: 18px 0 8px; font-size: 25px; } p { margin: 0 0 24px; color: #a8c6c2; font-size: 14px; line-height: 1.6; }
+      label { display: grid; gap: 8px; margin-top: 16px; color: #c7dcda; font-size: 14px; } input { width: 100%; padding: 13px 14px; border: 1px solid #4d7775; border-radius: 10px; color: inherit; background: #0b282a; font: inherit; outline: none; } input:focus { border-color: #55d4c2; box-shadow: 0 0 0 3px rgba(85, 212, 194, .16); }
+      button { width: 100%; margin-top: 24px; padding: 13px; border: 0; border-radius: 10px; background: #55d4c2; color: #062729; font: 700 16px inherit; cursor: pointer; } button:disabled { opacity: .65; cursor: wait; } #error { min-height: 20px; margin: 14px 0 0; color: #ffaca5; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="mark">≈</div>
+      <h1>河道主动巡护系统</h1>
+      <p>请使用系统管理员分配的账号登录。</p>
+      <form id="loginForm">
+        <label>账号 <input id="username" name="username" autocomplete="username" required autofocus /></label>
+        <label>密码 <input id="password" name="password" type="password" autocomplete="current-password" required /></label>
+        <button id="submit" type="submit">登录系统</button>
+        <div id="error" role="alert"></div>
+      </form>
+    </main>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next");
+      const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      document.getElementById("loginForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = document.getElementById("submit");
+        const error = document.getElementById("error");
+        button.disabled = true; error.textContent = "";
+        try {
+          const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ username: document.getElementById("username").value, password: document.getElementById("password").value }) });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.detail || "登录失败，请稍后重试");
+          location.replace(safeNext);
+        } catch (err) { error.textContent = err.message; button.disabled = false; }
+      });
+    </script>
+  </body>
+</html>

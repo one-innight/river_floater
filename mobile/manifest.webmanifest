@@ -1,0 +1,19 @@
+{
+  "name": "河道智巡",
+  "short_name": "河道智巡",
+  "description": "河道漂浮物主动巡护移动端",
+  "start_url": "/mobile/",
+  "scope": "/mobile/",
+  "display": "standalone",
+  "background_color": "#071619",
+  "theme_color": "#0c292b",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/mobile/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

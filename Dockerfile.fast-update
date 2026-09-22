@@ -1,0 +1,19 @@
+# Fast incremental update for a server that already has river-patrol-app:latest.
+# It reuses the existing PyTorch/Ultralytics layer and only installs the new
+# lightweight authentication dependency before replacing application files.
+FROM river-patrol-app:latest
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir "itsdangerous>=2.2,<3"
+
+COPY app ./app
+COPY static ./static
+COPY mobile ./mobile
+COPY weights ./weights
+
+RUN mkdir -p /app/runtime/uploads
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

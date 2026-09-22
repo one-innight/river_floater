@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>河道漂浮物识别与处置闭环</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">≈</span>
+          <div><strong>河道智巡</strong><small>MVP DEMO</small></div>
+        </div>
+        <nav>
+          <a class="active" href="#recognize"><span>◎</span>图片识别</a>
+          <a href="#camera"><span>◉</span>摄像头巡护</a>
+          <a href="#events"><span>◈</span>事件台账</a>
+          <a href="#records"><span>✓</span>识别记录</a>
+        </nav>
+        <div class="side-foot">
+          <div class="model-dot"></div>
+          <div>
+            <small>YOLO 模型</small><strong id="modelState">检查中…</strong>
+          </div>
+        </div>
+      </aside>
+      <main>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">MINIMUM CLOSED LOOP</p>
+            <h1>河道漂浮物识别与处置闭环</h1>
+          </div>
+          <div class="top-actions">
+            <span class="live"><i></i>服务在线</span><span id="clock"></span
+            ><button class="icon-btn" onclick="loadDashboard()">↻</button>
+          </div>
+        </header>
+
+        <section class="stat-grid">
+          <article class="stat-card">
+            <div class="stat-icon cyan">⌁</div>
+            <div>
+              <span>今日识别</span><strong id="todayDetections">—</strong
+              ><small>上传图片累计</small>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon amber">!</div>
+            <div>
+              <span>待闭环事件</span><strong id="activeEvents">—</strong
+              ><small>待确认至复核通过</small>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon red">◆</div>
+            <div>
+              <span>今日大量漂浮物</span><strong id="severeToday">—</strong
+              ><small>达到红色预警条件</small>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <div>
+              <span>已关闭事件</span><strong id="closedEvents">—</strong
+              ><small>复核降级后归档</small>
+            </div>
+          </article>
+        </section>
+
+        <section id="recognize" class="page-section content-grid mvp-grid">
+          <section class="panel quick-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">STEP 1 / PREDICT</p>
+                <h2>上传河道图片</h2>
+              </div>
+              <span class="panel-tag">单图识别</span>
+            </div>
+            <form id="detectForm">
+              <label class="upload-box" for="imageInput"
+                ><input
+                  id="imageInput"
+                  type="file"
+                  accept="image/*"
+                  required
+                /><span class="upload-plus">＋</span
+                ><strong id="fileName">选择现场图片</strong
+                ><small>支持 JPG / PNG · 最大 15 MB</small></label
+              >
+              <label
+                >河段名称<input
+                  id="location"
+                  class="form-input"
+                  value="河段 A"
+                  placeholder="例如：河段 A 或 XX 桥下游"
+                  required
+              /></label>
+              <button class="primary-btn" type="submit">
+                识别并生成建议 <span>→</span>
+              </button>
+            </form>
+            <div id="detectResult" class="result hidden"></div>
+          </section>
+          <section class="panel flow-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">STEP 2 / CLOSE LOOP</p>
+                <h2>最小闭环流程</h2>
+              </div>
+            </div>
+            <div class="flow-steps">
+              <div>
+                <b>01</b
+                ><span
+                  ><strong>漂浮物检测</strong
+                  ><small>目标数量与置信度</small></span
+                >
+              </div>
+              <div>
+                <b>02</b
+                ><span
+                  ><strong>自动预警</strong><small>按目标数量分级</small></span
+                >
+              </div>
+              <div>
+                <b>03</b
+                ><span
+                  ><strong>人工处置</strong><small>派单、处理说明</small></span
+                >
+              </div>
+              <div>
+                <b>04</b
+                ><span
+                  ><strong>模型复核</strong
+                  ><small>未发现漂浮物才可关闭</small></span
+                >
+              </div>
+            </div>
+            <div class="rule-note">
+              <strong>当前演示规则</strong>
+              <p>
+                置信度 ≥ 30% 的漂浮物检测框参与计数：1～3 个黄色预警，4～7
+                个橙色预警，8 个及以上红色预警。
+              </p>
+            </div>
+          </section>
+        </section>
+
+        <section id="camera" class="page-section">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">LIVE CAMERA PATROL</p>
+              <h2>摄像头视频巡护</h2>
+            </div>
+            <span class="panel-tag">每隔数秒抽帧识别</span>
+          </div>
+          <div class="camera-grid">
+            <section class="panel camera-panel">
+              <div class="camera-mode-switch">
+                <button
+                  id="browserModeButton"
+                  class="camera-mode active"
+                  type="button"
+                >
+                  浏览器摄像头
+                </button>
+                <button id="opencvModeButton" class="camera-mode" type="button">
+                  OpenCV / RTSP
+                </button>
+              </div>
+
+              <div id="browserCameraPane">
+                <div class="camera-stage">
+                  <video id="cameraVideo" autoplay muted playsinline></video>
+                  <canvas id="cameraOverlay"></canvas>
+                  <div id="cameraPlaceholder" class="camera-placeholder">
+                    <strong>摄像头尚未启动</strong
+                    ><small>适合本机或 USB 摄像头演示</small>
+                  </div>
+                </div>
+                <div class="camera-controls">
+                  <label
+                    >河段名称<input
+                      id="cameraLocation"
+                      class="form-input"
+                      value="河段 A"
+                      placeholder="输入自定义河段名称"
+                      required
+                  /></label>
+                  <label
+                    >抽帧间隔<select id="cameraInterval">
+                      <option value="5">5 秒</option>
+                      <option value="8" selected>8 秒</option>
+                      <option value="15">15 秒</option>
+                    </select></label
+                  >
+                  <div class="camera-buttons">
+                    <button
+                      id="startCameraButton"
+                      class="primary-btn"
+                      type="button"
+                    >
+                      启动摄像头</button
+                    ><button
+                      id="stopCameraButton"
+                      class="secondary-btn"
+                      type="button"
+                      disabled
+                    >
+                      停止
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="opencvCameraPane" class="hidden">
+                <div class="camera-stage">
+                  <img id="opencvStream" alt="OpenCV 视频流" />
+                  <div id="opencvPlaceholder" class="camera-placeholder">
+                    <strong>OpenCV 视频源尚未启动</strong
+                    ><small>设备编号 0、视频文件或 RTSP 地址</small>
+                  </div>
+                </div>
+                <div class="camera-controls">
+                  <label class="source-field"
+                    >视频源<input
+                      id="opencvSource"
+                      class="form-input"
+                      value="0"
+                      placeholder="0 或 rtsp://..."
+                  /></label>
+                  <label
+                    >河段名称<input
+                      id="opencvLocation"
+                      class="form-input"
+                      value="河段 A"
+                      placeholder="输入自定义河段名称"
+                      required
+                  /></label>
+                  <label
+                    >抽帧间隔<select id="opencvInterval">
+                      <option value="5">5 秒</option>
+                      <option value="8" selected>8 秒</option>
+                      <option value="15">15 秒</option>
+                    </select></label
+                  >
+                  <div class="camera-buttons">
+                    <button
+                      id="startOpenCVButton"
+                      class="primary-btn"
+                      type="button"
+                    >
+                      启动 OpenCV</button
+                    ><button
+                      id="stopOpenCVButton"
+                      class="secondary-btn"
+                      type="button"
+                      disabled
+                    >
+                      停止
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside class="panel camera-result-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">LIVE ANALYSIS</p>
+                  <h2>实时识别状态</h2>
+                </div>
+                <span id="cameraStatusBadge" class="badge badge-cyan"
+                  >已停止</span
+                >
+              </div>
+              <div class="camera-metrics">
+                <div>
+                  <small>已分析帧</small><strong id="cameraFrames">0</strong>
+                </div>
+                <div>
+                  <small>连续漂浮物帧</small
+                  ><strong id="cameraConsecutive">0 / 2</strong>
+                </div>
+                <div>
+                  <small>最近置信度</small
+                  ><strong id="cameraConfidence">0%</strong>
+                </div>
+              </div>
+              <div id="cameraResult" class="camera-result">
+                <p>启动摄像头后，系统会自动抽帧并调用 YOLO。</p>
+              </div>
+              <div class="rule-note">
+                <strong>视频预警规则</strong>
+                <p>
+                  连续 2 帧检测到漂浮物才创建事件；8 个及以上漂浮物（3
+                  级）立即预警；同河段已有未关闭事件时不会重复创建。
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="events" class="page-section">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">EVENT LEDGER</p>
+              <h2>预警事件台账</h2>
+            </div>
+            <div class="filters">
+              <button class="filter active" data-filter="">全部</button
+              ><button class="filter" data-filter="待确认">待确认</button
+              ><button class="filter" data-filter="处理中">处理中</button
+              ><button class="filter" data-filter="已关闭">已归档</button>
+            </div>
+          </div>
+          <div id="eventsList" class="event-list">
+            <div class="empty">正在加载事件…</div>
+          </div>
+        </section>
+
+        <section id="records" class="page-section">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">PREDICTION LOG</p>
+              <h2>最近识别记录</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>河段</th>
+                  <th>识别目标</th>
+                  <th>漂浮物等级</th>
+                  <th>置信度</th>
+                  <th>结果</th>
+                </tr>
+              </thead>
+              <tbody id="detectionTable">
+                <tr>
+                  <td colspan="6" class="empty">正在加载识别记录…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div id="eventModal" class="modal hidden">
+      <div class="modal-card">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

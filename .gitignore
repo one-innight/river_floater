@@ -1,0 +1,22 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.pwa-cache/
+.ipynb_checkpoints/
+.venv/
+.env
+.env.production
+.env.server
+*.py[cod]
+*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal
+evaluation/results.csv
+static/uploads/*
+!static/uploads/.gitkeep
+tmp/
+# Local runtime databases (keep the sample database only when intentionally tracked).
+river_litter_mvp.db
+river_patrol*.db
+河道主动巡护系统.zip
